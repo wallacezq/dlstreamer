@@ -366,6 +366,7 @@ FROM builder AS dlstreamer-dev
 ARG DLSTREAMER_VERSION=2026.1.0
 ARG DLSTREAMER_BUILD_NUMBER
 ARG OPENVINO_VERSION=2026.1.0
+ARG ENABLE_REALSENSE=ON
 # DL Streamer development image and build proccess
 
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
@@ -437,7 +438,7 @@ RUN \
        -DENABLE_RDKAFKA_INSTALLATION=ON \
        -DENABLE_VAAPI=ON \
        -DENABLE_SAMPLES=ON \
-       -DENABLE_REALSENSE=ON \
+         -DENABLE_REALSENSE="${ENABLE_REALSENSE}" \
        -DENABLE_GENAI=ON \
        .. && \
        make -j "$(nproc)" && \
