@@ -357,7 +357,8 @@ RUN \
     make install
 
 WORKDIR /copy_libs
-RUN cp -a /usr/local/lib/librealsense* ./
+RUN cp -a /usr/local/lib/librealsense* ./ && \
+    cp -a /usr/local/lib/librsutils* ./
 
 # ==============================================================================
 FROM builder AS dlstreamer-dev
