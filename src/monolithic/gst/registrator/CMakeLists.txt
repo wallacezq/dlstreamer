@@ -8,6 +8,7 @@ set (TARGET_NAME "gstvideoanalytics")
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GSTREAMER gstreamer-1.0>=1.16 REQUIRED)
+pkg_check_modules(GSTANALYTICS_128 QUIET gstreamer-analytics-1.0>=1.28)
 
 add_library(${TARGET_NAME} SHARED register_elements.cpp)
 set_compile_flags(${TARGET_NAME})
@@ -17,6 +18,9 @@ endif()
 
 if(ENABLE_GENAI)
     target_compile_definitions(${TARGET_NAME} PRIVATE ENABLE_GENAI)
+endif()
+if(GSTANALYTICS_128_FOUND)
+    target_compile_definitions(${TARGET_NAME} PRIVATE ENABLE_GVASTREAMMUX_DEMUX)
 endif()
 
 if(UNIX)
@@ -37,9 +41,15 @@ PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../elements/gvadeskew/
     ${CMAKE_CURRENT_SOURCE_DIR}/../elements/gvafpsthrottle/
     ${CMAKE_CURRENT_SOURCE_DIR}/../elements/gvaanalytics/
-    ${CMAKE_CURRENT_SOURCE_DIR}/../elements/gvastreammux/
-    ${CMAKE_CURRENT_SOURCE_DIR}/../elements/gvastreamdemux/
 )
+
+if(GSTANALYTICS_128_FOUND)
+    target_include_directories(${TARGET_NAME}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../elements/gvastreammux/
+        ${CMAKE_CURRENT_SOURCE_DIR}/../elements/gvastreamdemux/
+    )
+endif()
 
 target_link_libraries(${TARGET_NAME}
 PRIVATE
@@ -50,9 +60,11 @@ PRIVATE
     audio_inference_elements
     gvatrack
     dlstreamer_gst_meta
-    gvastreammux
-    gvastreamdemux
 )
+
+if(GSTANALYTICS_128_FOUND)
+    target_link_libraries(${TARGET_NAME} PRIVATE gvastreammux gvastreamdemux)
+endif()
 
 if(ENABLE_GENAI)
     target_link_libraries(${TARGET_NAME} PRIVATE gvagenai)

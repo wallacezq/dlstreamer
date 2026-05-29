@@ -15,7 +15,13 @@ struct _GstAnalyticsZoneData {
     gchar id[];   /* flexible array member - must be last */
 };
 
-static const GstAnalyticsMtdImpl zone_impl = {"zone", NULL, NULL, {NULL}};
+static const GstAnalyticsMtdImpl zone_impl = {
+    .name = "zone",
+    .mtd_meta_transform = NULL,
+#if GST_CHECK_VERSION(1, 28, 0)
+    .mtd_meta_clear = NULL,
+#endif
+    ._reserved = {NULL}};
 
 GstAnalyticsMtdType gst_analytics_zone_mtd_get_mtd_type(void) {
     return (GstAnalyticsMtdType)&zone_impl;

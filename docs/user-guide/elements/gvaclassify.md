@@ -166,3 +166,38 @@ share-va-display-ctx: Whether to share VA Display context across inference eleme
                         flags: readable, writable
                         Boolean. Default: true
 ```
+
+## Zero-shot OpenCLIP Example
+
+When using precomputed label embeddings, set `zeroshot-embeddings-file` on `gvaclassify` and use
+`zeroshot_openclip` converter in `model-proc`.
+
+Minimal `model-proc` example:
+
+```json
+{
+   "json_schema_version": "2.2.0",
+   "output_postproc": [
+      {
+         "layer_name": "output",
+         "converter": "zeroshot_openclip"
+      }
+   ]
+}
+```
+
+Minimal `gst-launch-1.0` example:
+
+```bash
+gst-launch-1.0 filesrc location=input.mp4 ! parsebin ! vah264dec ! \
+"video/x-raw(memory:VAMemory)" ! \
+gvaclassify model=/models/openclip_vision.xml \
+   model-proc=/models/openclip_zeroshot.json \
+   labels-file=/models/labels.txt \
+   zeroshot-embeddings-file=/models/labels_embeddings.pth \
+   zeroshot-topk=5 \
+   inference-region=full-frame device=NPU pre-process-backend=va ! \
+queue ! gvametaconvert format=json add-tensor-data=true ! \
+gvametapublish method=file file-path=stdout file-format=json-lines ! \
+fakesink
+```

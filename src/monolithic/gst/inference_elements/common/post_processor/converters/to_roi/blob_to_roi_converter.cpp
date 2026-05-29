@@ -9,7 +9,9 @@
 #include "boxes_labels.h"
 #include "boxes_scores.h"
 #include "centerface.h"
+#if GST_CHECK_VERSION(1, 28, 0)
 #include "custom_to_roi.h"
+#endif
 #include "detection_output.h"
 #include "mask_rcnn.h"
 #include "rtdetr.h"
@@ -51,10 +53,15 @@ BlobToMetaConverter::Ptr BlobToROIConverter::create(BlobToMetaConverter::Initial
     double iou_threshold = DEFAULT_IOU_THRESHOLD;
     gst_structure_get_double(model_proc_output_info.get(), "iou_threshold", &iou_threshold);
 
-    if (!custom_postproc_lib.empty())
+    if (!custom_postproc_lib.empty()) {
+#if GST_CHECK_VERSION(1, 28, 0)
         return BlobToMetaConverter::Ptr(
             new CustomToRoiConverter(std::move(initializer), confidence_threshold, iou_threshold, custom_postproc_lib));
-    else if (converter_name == DetectionOutputConverter::getName())
+#else
+        throw std::runtime_error(
+            "custom-postproc-lib requires GstTensor APIs available in gstreamer-analytics >= 1.28");
+#endif
+    } else if (converter_name == DetectionOutputConverter::getName())
         return BlobToMetaConverter::Ptr(new DetectionOutputConverter(std::move(initializer), confidence_threshold));
     else if (converter_name == BoxesLabelsConverter::getName())
         return BlobToMetaConverter::Ptr(

@@ -16,7 +16,13 @@ struct _GstAnalyticsTripwireData {
     gchar id[];   /* flexible array member - must be last */
 };
 
-static const GstAnalyticsMtdImpl tripwire_impl = {"tripwire", NULL, NULL, {NULL}};
+static const GstAnalyticsMtdImpl tripwire_impl = {
+    .name = "tripwire",
+    .mtd_meta_transform = NULL,
+#if GST_CHECK_VERSION(1, 28, 0)
+    .mtd_meta_clear = NULL,
+#endif
+    ._reserved = {NULL}};
 
 GstAnalyticsMtdType gst_analytics_tripwire_mtd_get_mtd_type(void) {
     return (GstAnalyticsMtdType)&tripwire_impl;

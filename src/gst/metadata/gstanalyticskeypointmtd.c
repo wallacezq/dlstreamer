@@ -149,7 +149,9 @@ struct _GstAnalyticsKeypointMtdData {
 
 #define _GET_KEYPOINT_STRIDE(dim) (dim == GST_ANALYTICS_KEYPOINT_DIMENSIONS_2D ? 2 : 3)
 
+#if GST_CHECK_VERSION(1, 28, 0)
 static void gst_analytics_keypoint_mtd_clear(GstBuffer *buffer, GstAnalyticsMtd *mtd);
+#endif
 
 static gboolean gst_analytics_keypoint_mtd_meta_transform(GstBuffer *transbuf, GstAnalyticsMtd *transmtd,
                                                           GstBuffer *buffer, GQuark type, gpointer data) {
@@ -157,6 +159,7 @@ static gboolean gst_analytics_keypoint_mtd_meta_transform(GstBuffer *transbuf, G
     (void)buffer;
 
     /* Handle coordinate transformation when buffer goes through video transforms */
+#if GST_CHECK_VERSION(1, 28, 0)
     if (GST_VIDEO_META_TRANSFORM_IS_MATRIX(type)) {
         GstVideoMetaTransformMatrix *trans = data;
         GstAnalyticsKeypointMtdData *kpdata = gst_analytics_relation_meta_get_mtd_data(transmtd->meta, transmtd->id);
@@ -173,7 +176,9 @@ static gboolean gst_analytics_keypoint_mtd_meta_transform(GstBuffer *transbuf, G
         if (!gst_video_meta_transform_matrix_point(trans, &kpdata->x, &kpdata->y))
             return FALSE;
 
-    } else if (GST_VIDEO_META_TRANSFORM_IS_SCALE(type)) {
+    } else
+#endif
+        if (GST_VIDEO_META_TRANSFORM_IS_SCALE(type)) {
         /* Handle scaling transforms (e.g., videoconvert with different resolution) */
         GstVideoMetaTransform *trans = data;
         GstAnalyticsKeypointMtdData *kpdata;
@@ -200,8 +205,18 @@ static gboolean gst_analytics_keypoint_mtd_meta_transform(GstBuffer *transbuf, G
     return TRUE;
 }
 
+#if GST_CHECK_VERSION(1, 28, 0)
 static const GstAnalyticsMtdImpl keypoint_impl = {
-    "keypoint-mtd", gst_analytics_keypoint_mtd_meta_transform, gst_analytics_keypoint_mtd_clear, {NULL}};
+    .name = "keypoint-mtd",
+    .mtd_meta_transform = gst_analytics_keypoint_mtd_meta_transform,
+    .mtd_meta_clear = gst_analytics_keypoint_mtd_clear,
+    ._reserved = {NULL}};
+#else
+static const GstAnalyticsMtdImpl keypoint_impl = {
+    .name = "keypoint-mtd",
+    .mtd_meta_transform = gst_analytics_keypoint_mtd_meta_transform,
+    ._reserved = {NULL}};
+#endif
 
 /**
  * gst_analytics_keypoint_mtd_get_mtd_type:
@@ -516,8 +531,10 @@ gboolean gst_analytics_keypoint_mtd_get_visibility_flags(const GstAnalyticsKeypo
     return TRUE;
 }
 
+#if GST_CHECK_VERSION(1, 28, 0)
 static void gst_analytics_keypoint_mtd_clear(GstBuffer *buffer, GstAnalyticsMtd *mtd) {
     (void)buffer;
     (void)mtd;
     /* No cleanup needed for keypoint metadata */
 }
+#endif

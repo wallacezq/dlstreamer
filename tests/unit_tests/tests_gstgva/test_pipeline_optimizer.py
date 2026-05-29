@@ -8,18 +8,33 @@ import unittest
 import time
 import signal
 import re
+import os
+
+os.environ.setdefault("DLS_OPTIMIZER_SKIP_DEVICE_QUERY", "1")
+
+import gi
+gi.require_version("Gst", "1.0")
+from gi.repository import Gst
+
 from optimizer import DLSOptimizer # pylint: disable=no-name-in-module
 from utils import get_model_path, get_video_path
 from openvino import Core
 
+Gst.init()
+
 class TestOptimizer(unittest.TestCase):
     
     def setUp(self):
+        if not Gst.ElementFactory.find("gvadetect"):
+            self.skipTest("gvadetect plugin is not available in current GStreamer runtime")
+
+        selected_device = "CPU"
+
         self.model_path = get_model_path("yolo11s")
         self.video_file = get_video_path("Pexels_Videos_1192116-sd_640_360_30fps.mp4")
-        self.simple_pipeline = f"filesrc location={self.video_file} ! decodebin ! gvadetect model={self.model_path} ! queue ! gvawatermark ! fakesink"
-        self.complex_pipeline = f"filesrc location={self.video_file} name=src1 ! decodebin ! gvadetect model={self.model_path} ! gvawatermark ! " \
-                               f"fakesink filesrc location={self.video_file} name=src2 ! decodebin ! gvadetect model={self.model_path} ! gvawatermark ! fakesink"
+        self.simple_pipeline = f"filesrc location={self.video_file} ! decodebin ! gvadetect model={self.model_path} device={selected_device} ! queue ! gvawatermark ! fakesink"
+        self.complex_pipeline = f"filesrc location={self.video_file} name=src1 ! decodebin ! gvadetect model={self.model_path} device={selected_device} ! gvawatermark ! " \
+                               f"fakesink filesrc location={self.video_file} name=src2 ! decodebin ! gvadetect model={self.model_path} device={selected_device} ! gvawatermark ! fakesink"
 
     def test_iter_optimize_for_fps_and_get_optimal_pipeline(self):
         """Test iter_optimize_for_fps with simple CPU pipeline and check candidate modifications"""

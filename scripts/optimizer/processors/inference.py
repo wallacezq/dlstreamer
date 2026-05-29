@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 # ==============================================================================
 import logging
+import os
 
 from openvino import Core
 
@@ -12,14 +13,24 @@ logger = logging.getLogger(__name__)
 class DeviceGenerator:
     def __init__(self):
         self.tracked_elements = []
-        self.devices = Core().available_devices
+        skip_query = os.environ.get("DLS_OPTIMIZER_SKIP_DEVICE_QUERY", "0") == "1"
+        if skip_query:
+            self.devices = ["CPU"]
+            logger.warning("Skipping OpenVINO device query; using CPU-only optimization mode")
+        else:
+            self.devices = [device for device in Core().available_devices if device != "AUTO"] or ["CPU"]
         logger.info("Devices detected on system: %s", str(self.devices))
         self.device_groups = []
         self.pipeline = []
         self.first_iteration = True
 
     def set_allowed_devices(self, devices):
-        _devices = Core().available_devices
+        skip_query = os.environ.get("DLS_OPTIMIZER_SKIP_DEVICE_QUERY", "0") == "1"
+        if skip_query:
+            self.devices = devices
+            return
+
+        _devices = [device for device in Core().available_devices if device != "AUTO"]
         for device in devices:
             if not any(device in d for d in _devices):
                 raise RuntimeError("Device %s is not supported by this system! Available devices: %s" % (device, str(_devices))) # pylint: disable=line-too-long

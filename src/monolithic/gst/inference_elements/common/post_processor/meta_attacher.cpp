@@ -126,8 +126,14 @@ void ROIToFrameAttacher::attach(const TensorsTable &tensors, FramesWrapper &fram
             gst_structure_get_double(detection_tensor, "rotation", &rotation);
 
             GstAnalyticsODMtd od_mtd;
+#if GST_CHECK_VERSION(1, 28, 0)
             if (!gst_analytics_relation_meta_add_oriented_od_mtd(relation_meta, gquark_label, x_abs, y_abs, w_abs,
                                                                  h_abs, rotation, conf, &od_mtd)) {
+#else
+            (void)rotation;
+            if (!gst_analytics_relation_meta_add_od_mtd(relation_meta, gquark_label, x_abs, y_abs, w_abs, h_abs,
+                                                        conf, &od_mtd)) {
+#endif
                 throw std::runtime_error("Failed to add detection data to meta");
             }
 

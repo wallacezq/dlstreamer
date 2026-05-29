@@ -17,6 +17,7 @@ build
 _release
 cmake-build-*/
 vcpkg_installed/
+.*/
 
 # Compiled Object files
 *.o

@@ -33,6 +33,15 @@ file (GLOB MAIN_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/gvarealsense/*.cpp
 )
 
+# GstTensor/GstTensorMeta APIs are available only in newer GStreamer analytics.
+# Keep older distros buildable by excluding converters that depend on those APIs.
+if(GSTANALYTICS_VERSION VERSION_LESS "1.28")
+    list(REMOVE_ITEM MAIN_SRC
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/post_processor/converters/to_roi/custom_to_roi.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/post_processor/converters/to_tensor/custom_to_tensor.cpp
+    )
+endif()
+
 file (GLOB MAIN_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/base/*.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/*.h

@@ -6,7 +6,9 @@
 
 #include "blob_to_tensor_converter.h"
 #include "clip_token_converter.h"
+#if GST_CHECK_VERSION(1, 28, 0)
 #include "custom_to_tensor.h"
+#endif
 #include "depth.h"
 #include "detection_anomaly.h"
 #include "docTR_ocr.h"
@@ -19,6 +21,7 @@
 #include "semantic_mask.h"
 #include "semantic_segmentation.h"
 #include "text.h"
+#include "zeroshot_openclip.h"
 
 #include "environment_variable_options_reader.h"
 #include "inference_backend/logger.h"
@@ -52,9 +55,14 @@ void warnIfLegacyRawTensorFeatureIsEnabled() {
 BlobToMetaConverter::Ptr BlobToTensorConverter::create(BlobToMetaConverter::Initializer initializer,
                                                        const std::string &converter_name,
                                                        const std::string &custom_postproc_lib) {
-    if (!custom_postproc_lib.empty())
+    if (!custom_postproc_lib.empty()) {
+#if GST_CHECK_VERSION(1, 28, 0)
         return std::make_unique<CustomToTensorConverter>(std::move(initializer), custom_postproc_lib);
-    else if (converter_name == RawDataCopyConverter::getName())
+#else
+        throw std::runtime_error(
+            "custom-postproc-lib requires GstTensor APIs available in gstreamer-analytics >= 1.28");
+#endif
+    } else if (converter_name == RawDataCopyConverter::getName())
         return std::make_unique<RawDataCopyConverter>(std::move(initializer));
     else if (converter_name == KeypointsHRnetConverter::getName())
         return std::make_unique<KeypointsHRnetConverter>(std::move(initializer));
@@ -78,6 +86,8 @@ BlobToMetaConverter::Ptr BlobToTensorConverter::create(BlobToMetaConverter::Init
         return std::make_unique<PaddleOCRConverter>(std::move(initializer));
     else if (converter_name == PaddleOCRCtcConverter::getName())
         return std::make_unique<PaddleOCRCtcConverter>(std::move(initializer));
+    else if (converter_name == ZeroShotOpenCLIPConverter::getName())
+        return std::make_unique<ZeroShotOpenCLIPConverter>(std::move(initializer));
     else if (converter_name == DetectionAnomalyConverter::getName()) {
         return std::make_unique<DetectionAnomalyConverter>(std::move(initializer));
     }

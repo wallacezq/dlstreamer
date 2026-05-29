@@ -57,10 +57,14 @@ class RegionOfInterest {
         gint y;
         gint w;
         gint h;
-        gfloat r;
+        gfloat r = 0.0f;
 
-        if (!gst_analytics_od_mtd_get_oriented_location(const_cast<GstAnalyticsODMtd *>(&_od_meta), &x, &y, &w, &h, &r,
-                                                        nullptr)) {
+    #if GST_CHECK_VERSION(1, 28, 0)
+        if (!gst_analytics_od_mtd_get_oriented_location(const_cast<GstAnalyticsODMtd *>(&_od_meta), &x, &y, &w, &h,
+                                &r, nullptr)) {
+    #else
+        if (!gst_analytics_od_mtd_get_location(const_cast<GstAnalyticsODMtd *>(&_od_meta), &x, &y, &w, &h, &r)) {
+    #endif
             throw std::runtime_error("Error when trying to read the location of the RegionOfInterest");
         }
         return {static_cast<uint32_t>(x), static_cast<uint32_t>(y), static_cast<uint32_t>(w), static_cast<uint32_t>(h)};
@@ -85,11 +89,18 @@ class RegionOfInterest {
         gint y;
         gint w;
         gint h;
-        gfloat rotation;
+        gfloat rotation = 0.0f;
 
+#if GST_CHECK_VERSION(1, 28, 0)
         if (!gst_analytics_od_mtd_get_oriented_location(&_od_meta, &x, &y, &w, &h, &rotation, nullptr)) {
             throw std::runtime_error("Error when trying to read the rotation of the RegionOfInterest");
         }
+#else
+    if (!gst_analytics_od_mtd_get_location(const_cast<GstAnalyticsODMtd *>(&_od_meta), &x, &y, &w, &h,
+                           &rotation)) {
+            throw std::runtime_error("Error when trying to read the location of the RegionOfInterest");
+        }
+#endif
         return rotation;
     }
 

@@ -15,6 +15,7 @@
 #include <gst/gst.h>
 
 #include <map>
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -31,6 +32,8 @@ class BlobToMetaConverter {
         std::vector<std::string> labels;
         // Suppresses public raw tensor metadata attachment for converters that can emit it.
         bool skip_raw_tensors = false;
+        std::string zeroshot_embeddings_file;
+        uint32_t zeroshot_topk = 1;
     };
 
   private:
@@ -41,6 +44,8 @@ class BlobToMetaConverter {
     GstStructureUniquePtr model_proc_output_info;
     const std::vector<std::string> labels;
     const bool skip_raw_tensors;
+    const std::string zeroshot_embeddings_file;
+    const uint32_t zeroshot_topk;
 
   protected:
     const ModelImageInputInfo &getModelInputImageInfo() const {
@@ -61,6 +66,14 @@ class BlobToMetaConverter {
     // This is used for optimization when raw tensors are large (like depth maps) and not needed in post-processing.
     bool skipRawTensors() const {
         return skip_raw_tensors;
+    }
+
+    const std::string &getZeroshotEmbeddingsFile() const {
+        return zeroshot_embeddings_file;
+    }
+
+    uint32_t getZeroshotTopk() const {
+        return zeroshot_topk;
     }
 
     const std::string &getLabelByLabelId(size_t label_id) const {

@@ -9,8 +9,10 @@
 #include <gst/gst.h>
 
 #include "gstgvaaudiodetect.h"
+#ifdef ENABLE_GVASTREAMMUX_DEMUX
 #include "gstgvastreamdemux.h"
 #include "gstgvastreammux.h"
+#endif
 #ifdef ENABLE_GENAI
 #include "gstgvaaudiotranscribe.h"
 #include "gstgvagenai.h"
@@ -74,10 +76,12 @@ static gboolean plugin_init(GstPlugin *plugin) {
         return FALSE;
     if (!gst_element_register(plugin, "gvaanalytics", GST_RANK_NONE, GVA_ANALYTICS_TYPE))
         return FALSE;
+#ifdef ENABLE_GVASTREAMMUX_DEMUX
     if (!gst_element_register(plugin, "gvastreammux", GST_RANK_NONE, GST_TYPE_GVA_STREAMMUX))
         return FALSE;
     if (!gst_element_register(plugin, "gvastreamdemux", GST_RANK_NONE, GST_TYPE_GVA_STREAMDEMUX))
         return FALSE;
+#endif
 
     // register metadata
     gst_gva_json_meta_get_info();
