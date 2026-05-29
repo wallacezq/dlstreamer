@@ -377,6 +377,7 @@ COPY --from=kafka-builder /usr/local/include/librdkafka /usr/local/include/librd
 COPY --from=kafka-builder /copy_libs/ /usr/local/lib/
 COPY --from=realsense-builder /copy_libs/ /usr/local/lib/
 COPY --from=realsense-builder /usr/local/include/librealsense2 /usr/local/include/librealsense2
+COPY --from=realsense-builder /usr/local/lib/cmake/realsense2 /usr/local/lib/cmake/realsense2
 
 # Build DL Streamer
 WORKDIR /home/dlstreamer
@@ -430,6 +431,7 @@ RUN \
     source /opt/intel/openvino_genai/setupvars.sh && \
     cmake \
        -DCMAKE_BUILD_TYPE="${BUILD_ARG}" \
+         -Drealsense2_DIR=/usr/local/lib/cmake/realsense2 \
        -DENABLE_PAHO_INSTALLATION=ON \
        -DENABLE_RDKAFKA_INSTALLATION=ON \
        -DENABLE_VAAPI=ON \

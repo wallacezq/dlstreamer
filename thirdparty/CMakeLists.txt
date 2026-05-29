@@ -52,4 +52,14 @@ add_library(json-schema-validator ALIAS nlohmann_json_schema_validator)
 # Hint compiler about location of the header file generated.
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_subdirectory(spdlog)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/spdlog/CMakeLists.txt)
+    message("Using thirdparty/spdlog")
+    add_subdirectory(spdlog)
+else()
+    message("thirdparty/spdlog not found, fetching from upstream")
+    FetchContent_Declare(
+        spdlog
+        URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.3.tar.gz
+    )
+    FetchContent_MakeAvailable(spdlog)
+endif()
