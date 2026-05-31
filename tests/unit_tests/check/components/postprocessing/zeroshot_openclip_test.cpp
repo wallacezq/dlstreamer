@@ -129,11 +129,12 @@ TEST(ZeroShotOpenCLIPConverter, ReturnsTopKRankedLabels) {
 
     auto tensors_table = converter.convert(output_blobs);
     ASSERT_EQ(tensors_table.size(), 1U);
-    ASSERT_EQ(tensors_table[0].size(), 1U);
-    ASSERT_EQ(tensors_table[0][0].size(), 2U);
+    ASSERT_EQ(tensors_table[0].size(), 2U);
+    ASSERT_EQ(tensors_table[0][0].size(), 1U);
+    ASSERT_EQ(tensors_table[0][1].size(), 1U);
 
     GstStructure *rank1 = tensors_table[0][0][0];
-    GstStructure *rank2 = tensors_table[0][0][1];
+    GstStructure *rank2 = tensors_table[0][1][0];
 
     ASSERT_STREQ(gst_structure_get_string(rank1, "label"), "alpha");
     ASSERT_STREQ(gst_structure_get_string(rank2, "label"), "gamma");

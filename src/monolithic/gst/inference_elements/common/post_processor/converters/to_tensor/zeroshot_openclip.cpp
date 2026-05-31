@@ -286,9 +286,6 @@ TensorsTable ZeroShotOpenCLIPConverter::convert(const OutputBlobs &output_blobs)
         std::partial_sort(indices.begin(), indices.begin() + actual_topk, indices.end(),
                           [&](size_t lhs, size_t rhs) { return logits[lhs] > logits[rhs]; });
 
-        std::vector<GstStructure *> tensors;
-        tensors.reserve(actual_topk);
-
         for (uint32_t rank = 0; rank < actual_topk; ++rank) {
             const size_t class_id = indices[rank];
             GVA::Tensor classification_result = createTensor();
@@ -309,10 +306,10 @@ TensorsTable ZeroShotOpenCLIPConverter::convert(const OutputBlobs &output_blobs)
                               safe_convert<int>(frame_index), "type", G_TYPE_STRING, GVA::GST_ANALYTICS_CLS_2_TENSOR,
                               NULL);
 
-            tensors.push_back(classification_result.gst_structure());
+            // Meta attachers expect each tensor entry to contain exactly one GstStructure.
+            std::vector<GstStructure *> tensor_entry{classification_result.gst_structure()};
+            tensors_table[frame_index].push_back(std::move(tensor_entry));
         }
-
-        tensors_table[frame_index].push_back(tensors);
     }
 
     return tensors_table;
