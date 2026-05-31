@@ -582,6 +582,7 @@ RUN \
     apt-get install -y -q --no-install-recommends python3-pip=\* gcc=\* libcairo2-dev=\* libgirepository1.0-dev=\* && \
     pip3 install --no-cache-dir --break-system-packages onvif-zeep==0.2.12 && \
     pip3 install --no-cache-dir --break-system-packages --ignore-installed -r /opt/intel/dlstreamer/requirements.txt && \
+    pip3 install --no-cache-dir --break-system-packages --index-url https://download.pytorch.org/whl/cpu torch==2.8 torchvision=0.23.0 && \
     apt-get remove -y gcc libcairo2-dev libgirepository1.0-dev && \
     apt-get autoremove -y && \
     cp -r /usr/local/lib/python3.12/site-packages/wsdl /usr/local/lib/python3.12/dist-packages/ && \
