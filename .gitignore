@@ -18,6 +18,7 @@ _release
 cmake-build-*/
 vcpkg_installed/
 .*/
+dls_assets/
 
 # Compiled Object files
 *.o

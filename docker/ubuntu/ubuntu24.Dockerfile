@@ -98,7 +98,8 @@ RUN \
     flex=\* bison=\* autoconf=\* automake=\* libtool=\* libogg-dev=\* make=\* g++=\* libva-dev=\* yasm=\* libglx-dev=\* libdrm-dev=\* \
     python-gi-dev=\* python3-dev=\* unzip=\* libgflags-dev=\* libcurl4-openssl-dev=\* \
     gobject-introspection=\* libgirepository1.0-dev=\* libx265-dev=\* libx264-dev=\* libde265-dev=\* gudev-1.0=\* libusb-1.0=\* nasm=\* python3-venv=\* \
-    libcairo2-dev=\* libxt-dev=\* libgirepository1.0-dev=\* libgles2-mesa-dev=\* wayland-protocols=\* \
+    libcairo2-dev=\* libxt-dev=\* libgirepository1.0-dev=\* libegl-dev=\* libegl1-mesa-dev=\* libgles2-mesa-dev=\* wayland-protocols=\* \
+    libx11-dev=\* libxdamage-dev=\* libxfixes-dev=\* libxi-dev=\* libxrandr-dev=\* libxcb-glx0-dev=\* \
     libssh2-1-dev=\* cmake=\* git=\* valgrind=\* numactl=\* libvpx-dev=\* libopus-dev=\* libsrtp2-dev=\* libxv-dev=\* \
     linux-libc-dev=\* libpmix2t64=\* libhwloc15=\* libhwloc-plugins=\* libxcb1-dev=\* libx11-xcb-dev=\* \
     ffmpeg=\* libpaho-mqtt-dev=\* libpostproc-dev=\* libavfilter-dev=\* libavdevice-dev=\* \
@@ -225,7 +226,7 @@ RUN \
     -Dgpl=disabled \
     -Dpython=enabled \
     -Dgst-plugins-base:nls=disabled \
-    -Dgst-plugins-base:gl=disabled \
+    -Dgst-plugins-base:gl=enabled \
     -Dgst-plugins-base:xvideo=enabled \
     -Dgst-plugins-base:vorbis=enabled \
     -Dgst-plugins-base:pango=disabled \
@@ -523,7 +524,8 @@ RUN userdel -r ubuntu
 # install prerequisites - gcc and cmake are needed to run .cpp samples
 RUN \
     apt-get update && \
-    apt-get install -y -q --no-install-recommends curl=\* gpg=\* ca-certificates=\* libtbb12=\* git=\* python3-venv=\* jq=\* && \
+    apt-get install -y -q --no-install-recommends curl=\* gpg=\* ca-certificates=\* libtbb12=\* git=\* python3-venv=\* jq=\* \
+    libegl1=\* libegl-mesa0=\* libgles2=\* libx11-xcb1=\* libxcb-glx0=\* && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
