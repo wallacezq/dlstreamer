@@ -20,12 +20,12 @@ jobs:
     outputs:
       dlstreamer_documentation_changed: ${{ steps.filter.outputs.dlstreamer_documentation }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Set paths filter
         id: filter
-        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d #4.01
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 #4.01
         with:
           filters: |
             dlstreamer_documentation:
@@ -43,7 +43,7 @@ jobs:
       EXCLUDE_PATTERNS: ""
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Fetch all history, otherwise sporadic issue with missing tags
           fetch-depth: 0
